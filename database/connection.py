@@ -14,10 +14,25 @@ class DatabaseManager:
                                 PALAVRA_DE TEXT NOT NULL,
                                 EXEMPLO_PT TEXT NOT NULL,
                                 EXEMPLO_DE TEXT NOT NULL,
-                                ANKI_CRIADO INTEGER NOT NULL
+                                ANKI_CRIADO INTEGER NOT NULL DEFAULT 0
                                 )''')
         self.db.commit()
 
     def close_connection(self):
         self.db.commit()
         self.db.close()
+
+    def inserir_palavra(self,tipo,categoria,genero,palavra_pt,palavra_de,exemplo_pt,exemplo_de):
+
+
+        self.cursor.execute('''
+                            INSERT INTO dicionario (TIPO,CATEGORIA,GENERO,PALAVRA_PT,PALAVRA_DE,EXEMPLO_PT,EXEMPLO_DE)
+                            VALUES (?,?,?,?,?,?,?)''',
+                            (tipo,categoria,genero,palavra_pt,palavra_de,exemplo_pt,exemplo_de))
+        self.db.commit()
+
+    def buscar_categorias(self):
+        self.cursor.execute('''SELECT DISTINCT CATEGORIA FROM dicionario''')
+        lista_tuplas = self.cursor.fetchall()
+        lista_categorias = [tpl[0] for tpl in lista_tuplas]
+        return lista_categorias

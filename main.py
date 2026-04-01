@@ -5,9 +5,8 @@ from ui.main_window import MainWindow
 
 if __name__ == "__main__":
     banco = DatabaseManager()
-    banco.close_connection()
 
     app = QApplication(sys.argv)
-    window = MainWindow()
+    window = MainWindow(banco)
     window.show()
     sys.exit(app.exec_())
