@@ -47,3 +47,22 @@ class DatabaseManager:
         self.cursor.execute('''SELECT * FROM dicionario''')
         lista_completa = self.cursor.fetchall()
         return lista_completa
+
+    def buscar_filtrado(self, tipo=None, texto=None):
+        query = 'SELECT * FROM dicionario'
+        params = []
+        condicoes = []
+
+        if tipo:
+            condicoes.append('TIPO = ?')
+            params.append(tipo)
+
+        if texto:
+            condicoes.append('PALAVRA_PT LIKE ?')
+            params.append(f'%{texto}%')
+
+        if condicoes:
+            query += ' WHERE ' + ' AND '.join(condicoes)
+
+        self.cursor.execute(query, tuple(params))
+        return self.cursor.fetchall()

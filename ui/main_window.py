@@ -1,25 +1,29 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFormLayout, QComboBox, QLineEdit, QCheckBox, QPushButton, \
-    QMessageBox, QCompleter, QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
+    QMessageBox, QCompleter, QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QHBoxLayout, QLabel, QFrame
 from utils.formatter import formatar_palavra
 
 class MainWindow(QMainWindow):
     def __init__(self, banco):
         super().__init__()
         self.setWindowTitle('Dicionário Anki')
-        self.setMinimumSize(600,800)
+        self.setMinimumSize(1000,800)
         self.banco = banco
         self._setup_ui()
         self._connect_signals()
         self._atualizar_tabela()
 
     def _setup_ui(self):
+        #Organização dos Layouts
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.main_layout = QVBoxLayout()
         self.central_widget.setLayout(self.main_layout)
         self.form_layout = QFormLayout()
         self.main_layout.addLayout(self.form_layout)
+        self.filtro_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.filtro_layout)
+        #Objetos criados dentro de cada layout
         self.combo_tipo = QComboBox()
         self.combo_tipo.addItems(['Substantivo','Verbo','Adjetivo','Advérbio','Preposição','Conjunção'])
         self.form_layout.addRow('Tipo', self.combo_tipo)
@@ -52,6 +56,19 @@ class MainWindow(QMainWindow):
         self.form_layout.addRow('Texto para Anki', self.output_formatted)
         self.btn_salvar = QPushButton('Salvar no Banco de Dados')
         self.form_layout.addWidget(self.btn_salvar)
+        # Objetos do Layout Horizontal:
+        self.label_filtro = QLabel()
+        self.label_filtro.setText("Filtro para Tipo de Palavra:")
+        self.filtro_layout.addWidget(self.label_filtro)
+        self.tipos_combo = QComboBox()
+        self.tipos_combo.addItems(['Todos','Substantivo','Verbo','Adjetivo','Advérbio','Preposição','Conjunção'])
+        self.filtro_layout.addWidget(self.tipos_combo)
+        self.label_palavra = QLabel()
+        self.label_palavra.setText("Inserir palavra de filtro:")
+        self.filtro_layout.addWidget(self.label_palavra)
+        self.input_palavra_filtro = QLineEdit()
+        self.filtro_layout.addWidget(self.input_palavra_filtro)
+        # Objetos do Layout Main:
         self.tabela = QTableWidget()
         self.tabela.setColumnCount(9)
         self.tabela.setHorizontalHeaderLabels(['ID','TIPO','CATEGORIA','GÊNERO','PALAVRA_PT','PALAVRA_DE','EXEMPLO_PT','EXEMPLO_DE','ANKI'])
@@ -67,6 +84,9 @@ class MainWindow(QMainWindow):
         self.input_palavra_de.textChanged.connect(self._on_palavra_de_changed)
         self.combo_genero.currentTextChanged.connect(self._on_palavra_de_changed)
         self.btn_salvar.clicked.connect(self._on_salvar)
+        self.tipos_combo.currentTextChanged.connect(self._atualizar_tabela)
+        self.input_palavra_filtro.textChanged.connect(self._atualizar_tabela)
+
 
     def _on_tipo_changed(self, texto):
         if texto != 'Substantivo':
@@ -137,7 +157,9 @@ class MainWindow(QMainWindow):
         self.input_exemplo_de.clear()
 
     def _atualizar_tabela(self):
-        lista_completa = self.banco.buscar_todas()
+        tipo = self.tipos_combo.currentText()
+        tipo = None if tipo == 'Todos' else tipo
+        lista_completa = self.banco.buscar_filtrado(tipo,self.input_palavra_filtro.text())
         self.tabela.setRowCount(len(lista_completa))
 
         for linha_idx, linha in enumerate(lista_completa):
