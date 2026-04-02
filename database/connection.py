@@ -36,3 +36,14 @@ class DatabaseManager:
         lista_tuplas = self.cursor.fetchall()
         lista_categorias = [tpl[0] for tpl in lista_tuplas]
         return lista_categorias
+
+    def verificar_similares(self, palavra_pt):
+        self.cursor.execute('''SELECT PALAVRA_PT FROM dicionario WHERE PALAVRA_PT LIKE ?''',(f'%{palavra_pt}%',))
+        lista_tuplas = self.cursor.fetchall()
+        lista_palavras = [tpl[0] for tpl in lista_tuplas]
+        return lista_palavras
+
+    def buscar_todas(self):
+        self.cursor.execute('''SELECT * FROM dicionario''')
+        lista_completa = self.cursor.fetchall()
+        return lista_completa
