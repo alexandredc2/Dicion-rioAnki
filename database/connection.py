@@ -20,6 +20,28 @@ class DatabaseManager:
                                 EXEMPLO_DE TEXT NOT NULL,
                                 ANKI_CRIADO INTEGER NOT NULL DEFAULT 0
                                 )''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS bancos(
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        NOME TEXT NOT NULL,
+        PARENT_ID INTEGER NOT NULL,
+        FOREIGN KEY (PARENT_ID) REFERENCES pastas (ID))''')
+        self.db.commit()
+
+    def criar_banco(self,nome,parent_id):
+        self.cursor.execute(f'''CREATE TABLE IF NOT EXISTS {nome} (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        TIPO TEXT NOT NULL,
+        CATEGORIA TEXT NOT NULL,
+        GENERO TEXT,
+        PALAVRA_PT TEXT NOT NULL,
+        PALAVRA_DE TEXT NOT NULL,
+        EX_PT_PRESENTE TEXT NOT NULL,
+        EX_DE_PRESENTE TEXT NOT NULL,
+        EX_PT_PASSADO TEXT NOT NULL,
+        EX_DE_PASSADO TEXT NOT NULL,
+        EX_PT_FUTURO TEXT NOT NULL,
+        EX_DE_FUTURO TEXT NOT NULL)''')
+        self.cursor.execute('INSERT INTO bancos (NOME, PARENT_ID) VALUES (?,?)', (nome,parent_id))
         self.db.commit()
 
     def criar_pasta(self, nome):
@@ -37,6 +59,10 @@ class DatabaseManager:
 
     def buscar_pastas(self):
         self.cursor.execute('SELECT id, nome FROM pastas')
+        return self.cursor.fetchall()
+
+    def buscar_bancos(self):
+        self.cursor.execute('SELECT ID, NOME, PARENT_ID FROM bancos')
         return self.cursor.fetchall()
 
     def close_connection(self):

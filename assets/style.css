@@ -20,3 +20,19 @@ QLabel#labelNegrito{
 QPushButton#buttonNegrito{
     font-weight: bold;
 }
+
+QStatusBar{
+    background-color: #424040;
+}
+
+QMenuBar{
+    background-color: #424040;
+    color: white;
+    font-size: 13px;
+}
+QMenuBar::item{
+    padding: 5px 15px;
+}
+QMenuBar::item:selected{
+    background-color: #5a5a5a;
+}

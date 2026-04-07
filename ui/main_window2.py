@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Dicionário Anki')
         self.setMinimumSize(1000,800)
         self.icon_pasta = os.path.join(os.path.dirname(__file__), "..", "assets", "pasta_icon.png")
+        self.icon_table = os.path.join(os.path.dirname(__file__), "..", "assets", "table_icon.png")
         self.banco = banco
         self._setup_ui()
         self._carregar_pastas_combo()
@@ -99,6 +100,15 @@ class MainWindow(QMainWindow):
         # --> Definição de Layout central
         self.setCentralWidget(self.layout_mainwindow)
 
+        # --> Criação do Menu Superior e do Rodapé
+        menu_bar = self.menuBar()
+        menu_file = menu_bar.addMenu("Arquivos")
+        menu_about = menu_bar.addMenu("Sobre")
+        self.act_gerenciar_banco = menu_file.addAction("Gerenciar Bancos de Dados")
+        self.act_sair = menu_file.addAction("Sair")
+        status_bar = self.statusBar()
+        status_bar.setSizeGripEnabled(False)
+
         # --> Organização do Painel de Bancos:
         self.layout_superior.addWidget(self.pn_bancos)
         self.layout_superior.addWidget(self.pn_palavras)
@@ -134,10 +144,17 @@ class MainWindow(QMainWindow):
         self.arvore_bancos.setFixedHeight(283)
         self.arvore_bancos.setContextMenuPolicy(Qt.CustomContextMenu)
         self.arvore_bancos.customContextMenuRequested.connect(self._menu_arvore)
+        pastas_map = {}
         for id_pasta, nome in self.banco.buscar_pastas():
             item = QTreeWidgetItem(self.arvore_bancos, [nome])
             item.setIcon(0, QIcon(self.icon_pasta))
             item.setData(0, Qt.UserRole, id_pasta)
+            pastas_map[id_pasta] = item
+        for id_banco, nome, parent_id in self.banco.buscar_bancos():
+            if parent_id in pastas_map:
+                filho = QTreeWidgetItem(pastas_map[parent_id], [nome])
+                filho.setIcon(0, QIcon(self.icon_table))
+                pastas_map[parent_id].setExpanded(True)
         self.layout_bancos.addWidget(self.arvore_bancos)
         self.layout_bancos.addStretch()
 
@@ -201,6 +218,20 @@ class MainWindow(QMainWindow):
         self.layout_palavras.addWidget(self.btn_add_palavra, 8, 0, 1, 3, Qt.AlignCenter)
         self.layout_palavras.setRowStretch(self.layout_palavras.rowCount(),1)
 
+    def _on_add_banco(self):
+        nome = self.line_nome_banco.text().strip()
+        parent_id = self.combo_nome_pasta.currentData()
+        if nome and parent_id:
+            self.banco.criar_banco(nome, parent_id)
+            for i in range(self.arvore_bancos.topLevelItemCount()):
+                item = self.arvore_bancos.topLevelItem(i)
+                if item.data(0, Qt.UserRole) == parent_id:
+                    filho = QTreeWidgetItem(item, [nome])
+                    filho.setIcon(0, QIcon(self.icon_table))
+                    item.setExpanded(True)
+                    break
+
     def _connect_signals(self):
         self.arvore_bancos.itemChanged.connect(self._on_pasta_renomeada)
+        self.btn_add_banco.clicked.connect(self._on_add_banco)
 
