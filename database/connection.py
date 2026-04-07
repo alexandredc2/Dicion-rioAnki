@@ -1,8 +1,10 @@
 from sqlite3 import connect
+import os
 
 class DatabaseManager:
     def __init__(self):
-        self.db = connect('database/dicionario.db')
+        self.db_path = os.path.join(os.path.dirname(__file__), "dicionario.db")
+        self.db = connect(self.db_path)
         self.cursor = self.db.cursor()
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS pastas (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
