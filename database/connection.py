@@ -4,6 +4,10 @@ class DatabaseManager:
     def __init__(self):
         self.db = connect('database/dicionario.db')
         self.cursor = self.db.cursor()
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS pastas (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        NOME TEXT NOT NULL
+        )''')
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS dicionario
                                 (
                                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,6 +21,23 @@ class DatabaseManager:
                                 ANKI_CRIADO INTEGER NOT NULL DEFAULT 0
                                 )''')
         self.db.commit()
+
+    def criar_pasta(self, nome):
+        self.cursor.execute('INSERT INTO pastas (nome) VALUES (?)',(nome,))
+        self.db.commit()
+        return self.cursor.lastrowid
+
+    def renomear_pasta(self, id, novo_nome):
+        self.cursor.execute('UPDATE pastas SET nome = ? WHERE id = ?',(novo_nome,id))
+        self.db.commit()
+
+    def deletar_pasta(self, id):
+        self.cursor.execute('DELETE FROM pastas WHERE id = ?',(id,))
+        self.db.commit()
+
+    def buscar_pastas(self):
+        self.cursor.execute('SELECT id, nome FROM pastas')
+        return self.cursor.fetchall()
 
     def close_connection(self):
         self.db.commit()
