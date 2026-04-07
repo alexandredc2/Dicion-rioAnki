@@ -36,3 +36,9 @@ QMenuBar::item{
 QMenuBar::item:selected{
     background-color: #5a5a5a;
 }
+QTableWidget QHeaderView::section:horizontal{
+    background-color: #5a5a5a;
+    color: white;
+    font-weight: bold;
+    padding: 4px;
+}

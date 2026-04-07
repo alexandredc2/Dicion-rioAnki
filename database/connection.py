@@ -1,15 +1,24 @@
 from sqlite3 import connect
 import os
 
+"""
+-> Configuração da Tabela de Dados para as Palavras:
+|  ID  |   TIPO   |   CATEGORIA   |  GÊNERO  |  PALAVRA(PT) | PALAVRA(DE) | PRESENTE(PT) | PRESENTE(DE) | PASSADO(PT) | PASSADO(DE) | FUTURO(PT) | FUTURO(DE) | OBSERVAÇÕES |
+"""
+
 class DatabaseManager:
     def __init__(self):
         self.db_path = os.path.join(os.path.dirname(__file__), "dicionario.db")
         self.db = connect(self.db_path)
         self.cursor = self.db.cursor()
+
+        # -> Banco de Dados: Armazenamento das informações de Pastas criadas:
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS pastas (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        NOME TEXT NOT NULL
-        )''')
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                            NOME TEXT NOT NULL
+                            )''')
+
+        # -> Banco de Dados: Armazenamento das informações de Palavras criadas:
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS dicionario
                                 (
                                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,31 +27,40 @@ class DatabaseManager:
                                 GENERO TEXT,
                                 PALAVRA_PT TEXT NOT NULL,
                                 PALAVRA_DE TEXT NOT NULL,
-                                EXEMPLO_PT TEXT NOT NULL,
-                                EXEMPLO_DE TEXT NOT NULL,
-                                ANKI_CRIADO INTEGER NOT NULL DEFAULT 0
+                                PRESENTE_PT TEXT NOT NULL,
+                                PRESENTE_DE TEXT NOT NULL,
+                                PASSADO_PT TEXT NOT NULL,
+                                PASSADO_DE TEXT NOT NULL,
+                                FUTURO_PT TEXT NOT NULL,
+                                FUTURO_DE TEXT NOT NULL,
+                                OBSERVACOES TEXT DEFAULT NULL 
                                 )''')
+        
+        # -> Banco de Dados: Armazenamento das informações de Tabelas criadas:
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS bancos(
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        NOME TEXT NOT NULL,
-        PARENT_ID INTEGER NOT NULL,
-        FOREIGN KEY (PARENT_ID) REFERENCES pastas (ID))''')
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                            NOME TEXT NOT NULL,
+                            PARENT_ID INTEGER NOT NULL,
+                            FOREIGN KEY (PARENT_ID) REFERENCES pastas (ID))''')
+        
         self.db.commit()
 
     def criar_banco(self,nome,parent_id):
         self.cursor.execute(f'''CREATE TABLE IF NOT EXISTS {nome} (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        TIPO TEXT NOT NULL,
-        CATEGORIA TEXT NOT NULL,
-        GENERO TEXT,
-        PALAVRA_PT TEXT NOT NULL,
-        PALAVRA_DE TEXT NOT NULL,
-        EX_PT_PRESENTE TEXT NOT NULL,
-        EX_DE_PRESENTE TEXT NOT NULL,
-        EX_PT_PASSADO TEXT NOT NULL,
-        EX_DE_PASSADO TEXT NOT NULL,
-        EX_PT_FUTURO TEXT NOT NULL,
-        EX_DE_FUTURO TEXT NOT NULL)''')
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                            TIPO TEXT NOT NULL,
+                            CATEGORIA TEXT NOT NULL,
+                            GENERO TEXT,
+                            PALAVRA_PT TEXT NOT NULL,
+                            PALAVRA_DE TEXT NOT NULL,
+                            PRESENTE_PT TEXT NOT NULL,
+                            PRESENTE_DE TEXT NOT NULL,
+                            PASSADO_PT TEXT NOT NULL,
+                            PASSADO_DE TEXT NOT NULL,
+                            FUTURO_PT TEXT NOT NULL,
+                            FUTURO_DE TEXT NOT NULL,
+                            OBSERVACOES TEXT DEFAULT NULL 
+                            )''')
         self.cursor.execute('INSERT INTO bancos (NOME, PARENT_ID) VALUES (?,?)', (nome,parent_id))
         self.db.commit()
 

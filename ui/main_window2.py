@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCursor
 from PyQt5.QtWidgets import QMainWindow, QSplitter, QWidget, QVBoxLayout, QGridLayout, QLabel, QComboBox, QLineEdit, \
-    QPushButton, QTextEdit, QTreeWidget, QHBoxLayout, QTreeWidgetItem, QMenu
+    QPushButton, QTextEdit, QTreeWidget, QHBoxLayout, QTreeWidgetItem, QMenu, QTableWidget, QHeaderView
 import os
 
 
@@ -225,6 +225,15 @@ class MainWindow(QMainWindow):
         self.layout_palavras.addWidget(QTextEdit(),9,1,1,2)
         self.layout_palavras.addWidget(self.btn_add_palavra, 10, 0, 1, 3, Qt.AlignCenter)
         self.layout_palavras.setRowStretch(self.layout_palavras.rowCount(),1)
+
+        # -> Organização do painel de visualização
+        self.pn_tabela.setLayout(self.layout_tabela)
+        self.tabela = QTableWidget()
+        self.tabela.setColumnCount(13)
+        self.tabela.setHorizontalHeaderLabels(['ID','TIPO','CATEGORIA','GÊNERO','PALAVRA(PT)','PALAVRA(DE)','PRESENTE(PT)','PRESENTE(DE)','PASSADO(PT)','PASSADO(DE)','FUTURO(PT)','FUTURO(DE)','OBSERVAÇÕES'])
+        self.tabela.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.layout_tabela.addWidget(self.tabela)
+        
 
     def _on_add_banco(self):
         nome = self.line_nome_banco.text().strip()
