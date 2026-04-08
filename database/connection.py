@@ -63,6 +63,15 @@ class DatabaseManager:
                             )''')
         self.cursor.execute('INSERT INTO bancos (NOME, PARENT_ID) VALUES (?,?)', (nome,parent_id))
         self.db.commit()
+        return self.cursor.lastrowid
+
+    def deletar_banco(self, id):
+        self.cursor.execute('DELETE FROM bancos WHERE ID = ?', (id,))
+        self.db.commit()
+
+    def renomear_banco(self,id,novo_nome):
+        self.cursor.execute('UPDATE bancos SET NOME = ? WHERE ID = ?', (novo_nome, id))
+        self.db.commit()
 
     def criar_pasta(self, nome):
         self.cursor.execute('INSERT INTO pastas (nome) VALUES (?)',(nome,))
@@ -85,17 +94,27 @@ class DatabaseManager:
         self.cursor.execute('SELECT ID, NOME, PARENT_ID FROM bancos')
         return self.cursor.fetchall()
 
+    def buscar_palavras(self,tabela):
+        self.cursor.execute(f'SELECT * FROM {tabela}')
+        return self.cursor.fetchall()
+
     def close_connection(self):
         self.db.commit()
         self.db.close()
 
-    def inserir_palavra(self,tipo,categoria,genero,palavra_pt,palavra_de,exemplo_pt,exemplo_de):
+    def inserir_palavra(self, tabela, tipo, cat, gen, palavra_pt, palavra_de,
+                        prept, prede, paspt, pasde, futpt, futde, obs):
+        self.cursor.execute(f'''INSERT INTO {tabela}
+                            (TIPO, CATEGORIA, GENERO, PALAVRA_PT, PALAVRA_DE,
+                            PRESENTE_PT, PRESENTE_DE, PASSADO_PT, PASSADO_DE,
+                            FUTURO_PT, FUTURO_DE, OBSERVACOES)
+                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)''',
+                            (tipo, cat, gen, palavra_pt, palavra_de,
+                             prept, prede, paspt, pasde, futpt, futde, obs))
+        self.db.commit()
 
-
-        self.cursor.execute('''
-                            INSERT INTO dicionario (TIPO,CATEGORIA,GENERO,PALAVRA_PT,PALAVRA_DE,EXEMPLO_PT,EXEMPLO_DE)
-                            VALUES (?,?,?,?,?,?,?)''',
-                            (tipo,categoria,genero,palavra_pt,palavra_de,exemplo_pt,exemplo_de))
+    def deletar_palavra(self,tabela,id):
+        self.cursor.execute(f'DELETE FROM {tabela} WHERE ID = ?',(id,))
         self.db.commit()
 
     def buscar_categorias(self):
